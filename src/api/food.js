@@ -15,6 +15,7 @@ const createFood = async (payload) => {
   const res = await APIUtils.post(END_POINTS.FOOD, {
     body: payload,
   });
+  
   return res?.data || res;
 };
 

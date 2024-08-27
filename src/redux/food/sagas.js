@@ -1,6 +1,6 @@
 import { fork, put, takeLatest } from "redux-saga/effects";
-import { getFoodFailed, getFoodSuccess } from "./actions";
-import { GET_FOOD } from "./constants";
+import { createFoodFailed, createFoodSuccess, getFoodFailed, getFoodHandle, getFoodSuccess } from "./actions";
+import { CREATE_FOOD, GET_FOOD } from "./constants";
 import { callApi } from "../../utils/helper/callApi";
 import { FoodApi } from "../../api/food";
 
@@ -22,8 +22,29 @@ function* getFoodSaga(obj) {
   }
 }
 
+function* createFoodSaga(obj) {
+  const { payload, onSuccess, onFailed } = obj;
+
+  try {
+    const res = yield callApi(FoodApi.createFood, payload)
+    if (res) {
+      onSuccess?.(res);
+      yield put(getFoodHandle())
+      yield put(createFoodSuccess(res))
+    } else {
+      onFailed?.(res);
+      yield put(createFoodFailed(res));
+    }
+  } catch (error) {
+    onFailed?.(error);
+    yield put(createFoodFailed(error));
+  }
+}
+
 function* watchUser() {
+
   yield takeLatest(GET_FOOD.HANDLER, getFoodSaga);
+  yield takeLatest(CREATE_FOOD.HANDLER, createFoodSaga)
   // yield takeLatest(CREATE_FOOD.HANDLER, createFoodSaga);
   // upadte/delete ....
 }
