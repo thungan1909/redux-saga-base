@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const domain = "https://66cd3dd88ca9aa6c8cc9c66d.mockapi.io/api/v1/";
+// const domain = "https://66cd3dd88ca9aa6c8cc9c66d.mockapi.io/api/v1/";
+const domain = "https://66cda32c8ca9aa6c8ccb166d.mockapi.io/api/v1";
 
 const REQUEST_TIMEOUT = 60000;
 
