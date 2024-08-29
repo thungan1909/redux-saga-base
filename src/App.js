@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { getFoodSelector } from "./redux/food/selectors";
