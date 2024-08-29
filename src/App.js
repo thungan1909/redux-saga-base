@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { createFoodHandle, getFoodHandle } from "./redux/food/actions";
 import { getLoadingSelector } from "./redux/loading/selector";
 import { CREATE_FOOD, GET_FOOD } from "./redux/food/constants";
-import { Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
-import { CREATE_PAYMENT } from "./redux/payment/constants";
+import { Button, Card, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
+import { CREATE_PAYMENT, GET_PAYMENT } from "./redux/payment/constants";
 import { createPaymentHandle, getPaymentHandle } from "./redux/payment/actions";
 import { getPaymentSelector } from "./redux/payment/selector";
 
@@ -25,7 +25,7 @@ function App() {
 
 
   const isFetchingGetPayment = useSelector((state) =>
-    getLoadingSelector(state, [GET_FOOD.HANDLER])
+    getLoadingSelector(state, [GET_PAYMENT.HANDLER])
   );
 
   const isFetchingCreateFood = useSelector((state) =>
@@ -67,7 +67,7 @@ function App() {
 
   const getPaymentByClick = () => {
     dispatch(
-      getPaymentHandle({ page: 1, limit: 1 }),
+      getPaymentHandle({ page: 1, limit: 100 }),
     );
   };
 
@@ -114,26 +114,24 @@ function App() {
     );
     setCheckedList(updatedList);
   };
-
   function formatDate(isoString) {
     const date = new Date(isoString);
 
-    const options = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getFullYear();
 
-    };
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return date.toLocaleDateString('en-US', options);
+    // Return in the format "DD/MM/YYYY HH:mm:ss"
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }
 
-  // useEffect(() => {
-  //   dispatch(getFoodHandle(), getFoodCallback, getFoodErrorCallback);
-  // }, []);
+  useEffect(() => {
+    dispatch(getFoodHandle(), getFoodCallback, getFoodErrorCallback);
+  }, []);
 
   return (
     <div className="App">
@@ -160,14 +158,15 @@ function App() {
           Get list food
         </Button>
         <div className="food-order">
-
+          <h1> LIST FOOD</h1>
+          <span>Select the food you want to order</span>
           {foodInfo?.data?.length !== 0 &&
             foodInfo?.data.map((item, index) => (
               <div className="food-item" key={index}>
                 <FormControlLabel
                   control={
                     <Checkbox checked={!!checkedList.find((food) => food.index === index)}
-                      onChange={() => handleCheckboxChange(index, item)} name={index} />
+                      onChange={() => handleCheckboxChange(index, item)} name={index.toString()} />
                   }
                   label={item.name}
 
@@ -203,24 +202,35 @@ function App() {
         </Button>
         {paymentInfo?.data?.length !== 0 &&
 
-          (<div className="food-order" >
+          (
+            <>    <h1>LIST PAYMENT</h1>
+              <div className="food-payment" >
 
-            <Typography>Payment time:{formatDate(paymentInfo?.data?.[0]?.createdAt)}</Typography>
+                {paymentInfo?.data?.map((itemPayment) =>
+                (
 
-            <Typography>Payment index:  {paymentInfo?.data?.[0]?.id}</Typography>
-            <h1>LIST PAYMENT</h1>
-            {paymentInfo?.data?.[0]?.list.map((item, index) => (
-              <div className="food-item-info">
-              <Typography key={index}>{item.name}</Typography>
-              <Typography>x</Typography>
-              <Typography key={index}>{item.quantity}</Typography>
-              </div>
-            ))}
-          </div>)}
+                  <Card key={itemPayment.id} className="food-order-card">
+                    <Typography>{formatDate(itemPayment.createdAt)}</Typography>
 
+                    <Typography>Index:  {itemPayment.id}</Typography>
+                    <Typography variant='h6'>List order</Typography>
+                    {itemPayment.list.map((item, index) => (
+                      <div className="food-item-info" key={`${itemPayment.id}-${index}`}>
+                        <Typography >{item.name}</Typography>
+                        <Typography>x</Typography>
+                        <Typography >{item.quantity}</Typography>
+                      </div>
+                    ))}</Card>
+
+                )
+
+                )}
+
+
+              </div></>
+          )}
       </div>
     </div>
-  );
+  )
 }
-
 export default App;
